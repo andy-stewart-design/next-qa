@@ -6,27 +6,35 @@ export default function ClientSection() {
   const [prompt, setPrompt] = useState("");
   const [answer, setAnswer] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const generateResponse = async (e?: MouseEvent<HTMLButtonElement>) => {
     if (e) e.preventDefault();
     if (answer) setAnswer(undefined);
+    if (error) setError(undefined);
     setPrompt("");
     setLoading(true);
 
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt }),
-    });
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+      });
 
-    if (!response.ok) throw new Error(response.statusText);
+      if (!res.ok) throw new Error(res.statusText);
 
-    const data = await response.json();
-    if (!data) return;
+      const data = await res.json();
+      if (!data) throw new Error("Bad fetch response");
 
-    setAnswer(data.msg);
+      setAnswer(data.msg);
+    } catch (error) {
+      console.error(error);
+      setError("Sorry, there was a problem. Please try again.");
+    }
+
     setLoading(false);
   };
 
@@ -50,6 +58,14 @@ export default function ClientSection() {
           disabled={loading}
         />
       </div>
+
+      {error && (
+        <div className="px-8 pt-6 flex justify-center">
+          <p className="text-center text-gray-900 bg-red-500 px-4 py-0.5 rounded-full">
+            {error}
+          </p>
+        </div>
+      )}
 
       {answer && (
         <div className={"px-8 pt-6"}>
