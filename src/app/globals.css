@@ -25,3 +25,11 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.modern-gradient {
+  background-image: linear-gradient(
+    to bottom left in oklab,
+    oklch(55% 0.45 350) 0%,
+    oklch(100% 0.4 95) 100%
+  );
+}

@@ -3,9 +3,9 @@
 import { useState, MouseEvent, KeyboardEvent } from "react";
 
 export default function ClientSection() {
-  const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [answer, setAnswer] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
 
   const generateResponse = async (e?: MouseEvent<HTMLButtonElement>) => {
     if (e) e.preventDefault();
@@ -30,7 +30,7 @@ export default function ClientSection() {
     setLoading(false);
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       generateResponse();
@@ -38,37 +38,64 @@ export default function ClientSection() {
   };
 
   return (
-    <div className="w-full max-w-xl space-y-4">
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        onKeyDown={(e) => handleKeyDown(e)}
-        rows={4}
-        maxLength={200}
-        className="focus:outline-0 w-full rounded-md border
-         p-4 text-neutral-900 shadow-sm placeholder:text-neutral-400 block"
-        placeholder={"e.g. What is React?"}
-      />
-      {!loading ? (
-        <button
-          className="w-full rounded-xl bg-blue-600 px-4 py-2 font-medium text-white hover:bg-black/80"
-          onClick={(e) => generateResponse(e)}
-        >
-          Generate Response
-        </button>
-      ) : (
-        <button
-          disabled
-          className="w-full rounded-xl bg-neutral-900 px-4 py-2 font-medium text-white"
-        >
-          <div className="animate-pulse font-bold tracking-widest">...</div>
-        </button>
-      )}
+    <div className="grid w-full max-w-2xl gap-6">
+      <div className="flex items-center gap-2 rounded-full bg-gray-900 p-6 px-8 shadow-2xl">
+        {loading ? <LoadingSpinner /> : <Search />}
+        <input
+          className="grow bg-transparent p-2 focus:outline-none"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => handleKeyDown(e)}
+          placeholder="What do you want to know?"
+          disabled={loading}
+        />
+      </div>
+
       {answer && (
-        <div>
+        <div className={"px-8 pt-6"}>
           <p className="text-left">{answer}</p>
         </div>
       )}
     </div>
   );
 }
+
+const Search = () => {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M14 14L22 22M16 9C16 12.866 12.866 16 9 16C5.13401 16 2 12.866 2 9C2 5.13401 5.13401 2 9 2C12.866 2 16 5.13401 16 9Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+const LoadingSpinner = () => {
+  return (
+    <svg
+      className="animate-spin"
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="8"
+        stroke="currentColor"
+        strokeWidth="3"
+        opacity="0.3"
+      ></circle>
+      <path
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="3"
+        d="M12 4a8 8 0 00-5.657 13.657"
+      ></path>
+    </svg>
+  );
+};
