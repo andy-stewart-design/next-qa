@@ -20,7 +20,7 @@ export default function ClientSection() {
 		setLoading(true);
 
 		try {
-			const res = await fetch("/api/generate-basic", {
+			const res = await fetch("/api/generate-sse", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -28,12 +28,30 @@ export default function ClientSection() {
 				body: JSON.stringify({ prompt }),
 			});
 
-			if (!res.ok) throw new Error(`Request failed with status: ${res.status}`);
+			if (!res.ok) throw new Error(res.statusText);
 
-			const data = await res.json();
-			if (!data) throw new Error("Invalid response received");
+			const data = res.body;
+			if (!data) return;
 
-			setAnswer(data.msg);
+			const reader = data.getReader();
+			const decoder = new TextDecoder();
+			let done = false;
+
+			while (!done) {
+				const { value, done: doneReading } = await reader.read();
+				done = doneReading;
+				const chunkValue = decoder.decode(value);
+				console.log("chunk", chunkValue);
+			}
+
+			// console.log(data);
+
+			// if (!res.ok) throw new Error(`Request failed with status: ${res.status}`);
+
+			// const data = await res.json();
+			// if (!data) throw new Error("Invalid response received");
+
+			// setAnswer(data.msg);
 		} catch (error) {
 			console.error(error);
 			setError("Sorry, there was a problem. Please try again.");
